@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import requests
 
 app = FastAPI()
@@ -26,11 +27,11 @@ async def main(request: Request):
     else:
         answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Пустой ответ")
 
-    return {
-        "version": body["version"],
-        "session": body["session"],
+    return JSONResponse(content={
+        "version": body.get("version", "1.0"),
+        "session": body.get("session", {}),
         "response": {
             "end_session": False,
             "text": answer
         }
-    }
+    })
