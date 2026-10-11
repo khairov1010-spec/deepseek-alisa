@@ -7,7 +7,7 @@ app = FastAPI()
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
-@app.post("/")
+@app.post("/alice")
 async def main(request: Request):
     body = await request.json()
     user_text = body["request"]["original_utterance"]
@@ -20,7 +20,11 @@ async def main(request: Request):
             "messages": [{"role": "user", "content": user_text}],
         }
     )
-    answer = response.json()["choices"][0]["message"]["content"]
+    data = response.json()
+    if "error" in data:
+        answer = f"Ошибка API: {data['error'].get('message', 'неизвестная')}"
+    else:
+        answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Пустой ответ")
 
     return {
         "version": body["version"],
